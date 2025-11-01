@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国象棋游戏</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+            min-height: 100vh;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            color: #333;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .game-header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-board-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .board-wrapper {
+            background: rgba(139, 69, 19, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .xiangqi-board {
+            width: 540px;
+            height: 600px;
+            background: #DEB887;
+            border: 3px solid #8B4513;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .board-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .horizontal-line {
+            position: absolute;
+            width: 480px;
+            height: 2px;
+            background: #8B4513;
+            left: 30px;
+        }
+
+        .vertical-line {
+            position: absolute;
+            width: 2px;
+            height: 540px;
+            background: #8B4513;
+            top: 30px;
+        }
+
+        .river {
+            position: absolute;
+            top: 270px;
+            left: 30px;
+            width: 480px;
+            height: 60px;
+            background: rgba(173, 216, 230, 0.3);
+            border-top: 2px solid #8B4513;
+            border-bottom: 2px solid #8B4513;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #8B4513;
+        }
+
+        .palace-lines {
+            position: absolute;
+            stroke: #8B4513;
+            stroke-width: 2;
+        }
+
+        .piece {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid #8B4513;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .piece.red {
+            background: #FF6B6B;
+            color: #FFF;
+        }
+
+        .piece.black {
+            background: #333;
+            color: #FFF;
+        }
+
+        .piece:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .piece.selected {
+            transform: scale(1.2);
+            box-shadow: 0 0 20px #FFD700;
+            border-color: #FFD700;
+        }
+
+        .possible-move {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 215, 0, 0.7);
+            border-radius: 50%;
+            cursor: pointer;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .game-controls {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 300px;
+            max-width: 350px;
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+        }
+
+        .game-mode-selector {
+            margin-bottom: 20px;
+        }
+
+        .difficulty-selector {
+            margin-bottom: 20px;
+        }
+
+        .game-status {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .btn-game {
+            width: 100%;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-game:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .move-history {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .move-item {
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .current-player {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .red-turn {
+            background: #FFE6E6;
+            color: #CC0000;
+        }
+
+        .black-turn {
+            background: #E6E6E6;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .xiangqi-board {
+                width: 360px;
+                height: 400px;
+            }
+            
+            .piece {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+            
+            .game-board-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- 游戏标题 -->
+        <div class="game-header">
+            <h1><i class="fas fa-chess-board me-2"></i>中国象棋</h1>
+            <p class="mb-0">Classical Chinese Chess Game</p>
+        </div>
+
+        <!-- 游戏主体 -->
+        <div class="game-board-container">
+            <!-- 棋盘区域 -->
+            <div class="board-wrapper">
+                <div class="xiangqi-board" id="xiangqiBoard">
+                    <!-- 棋盘线条 -->
+                    <div class="board-lines">
+                        <!-- 水平线 -->
+                        <div class="horizontal-line" style="top: 30px;"></div>
+                        <div class="horizontal-line" style="top: 90px;"></div>
+                        <div class="horizontal-line" style="top: 150px;"></div>
+                        <div class="horizontal-line" style="top: 210px;"></div>
+                        <div class="horizontal-line" style="top: 270px;"></div>
+                        <div class="horizontal-line" style="top: 330px;"></div>
+                        <div class="horizontal-line" style="top: 390px;"></div>
+                        <div class="horizontal-line" style="top: 450px;"></div>
+                        <div class="horizontal-line" style="top: 510px;"></div>
+                        <div class="horizontal-line" style="top: 570px;"></div>
+
+                        <!-- 垂直线 -->
+                        <div class="vertical-line" style="left: 30px;"></div>
+                        <div class="vertical-line" style="left: 90px;"></div>
+                        <div class="vertical-line" style="left: 150px;"></div>
+                        <div class="vertical-line" style="left: 210px;"></div>
+                        <div class="vertical-line" style="left: 270px;"></div>
+                        <div class="vertical-line" style="left: 330px;"></div>
+                        <div class="vertical-line" style="left: 390px;"></div>
+                        <div class="vertical-line" style="left: 450px;"></div>
+                        <div class="vertical-line" style="left: 510px;"></div>
+                    </div>
+
+                    <!-- 楚河汉界 -->
+                    <div class="river">楚河 ————————— 汉界</div>
+
+                    <!-- 九宫格对角线 -->
+                    <svg class="palace-lines" width="540" height="600">
+                        <!-- 红方九宫格 -->
+                        <line x1="210" y1="30" x2="330" y2="150"/>
+                        <line x1="330" y1="30" x2="210" y2="150"/>
+                        <!-- 黑方九宫格 -->
+                        <line x1="210" y1="450" x2="330" y2="570"/>
+                        <line x1="330" y1="450" x2="210" y2="570"/>
+                    </svg>
+
+                    <!-- 棋子将在这里动态生成 -->
+                </div>
+            </div>
+
+            <!-- 游戏控制面板 -->
+            <div class="game-controls">
+                <!-- 当前玩家指示 -->
+                <div class="current-player red-turn" id="currentPlayer">
+                    红方回合
+                </div>
+
+                <!-- 游戏模式选择 -->
+                <div class="control-section">
+                    <h6><i class="fas fa-gamepad me-2"></i>游戏模式</h6>
+                    <div class="game-mode-selector">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="gameMode" id="pvpMode" value="pvp" checked>
+                            <label class="form-check-label" for="pvpMode">
+                                双人对局 (PvP)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="gameMode" id="aiMode" value="ai">
+                            <label class="form-check-label" for="aiMode">
+                                人机对局 (vs AI)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI难度选择 -->
+                <div class="control-section" id="difficultySection" style="display: none;">
+                    <h6><i class="fas fa-brain me-2"></i>AI难度</h6>
+                    <select class="form-select" id="aiDifficulty">
+                        <option value="easy">简单</option>
+                        <option value="medium">中等</option>
+                        <option value="hard">困难</option>
+                    </select>
+                </div>
+
+                <!-- 游戏状态 -->
+                <div class="game-status">
+                    <div><strong>游戏状态：</strong><span id="gameStatus">进行中</span></div>
+                    <div><strong>移动次数：</strong><span id="moveCount">0</span></div>
+                </div>
+
+                <!-- 游戏控制按钮 -->
+                <div class="control-section">
+                    <button class="btn btn-success btn-game" id="newGameBtn">
+                        <i class="fas fa-play me-2"></i>新游戏
+                    </button>
+                    <button class="btn btn-warning btn-game" id="undoBtn">
+                        <i class="fas fa-undo me-2"></i>悔棋
+                    </button>
+                    <button class="btn btn-info btn-game" id="hintBtn">
+                        <i class="fas fa-lightbulb me-2"></i>提示
+                    </button>
+                    <button class="btn btn-secondary btn-game" id="resetBtn">
+                        <i class="fas fa-refresh me-2"></i>重置
+                    </button>
+                </div>
+
+                <!-- 走法历史 -->
+                <div class="control-section">
+                    <h6><i class="fas fa-history me-2"></i>走法历史</h6>
+                    <div class="move-history" id="moveHistory">
+                        <div class="text-muted">暂无走法记录</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏结束模态框 -->
+    <div class="modal fade" id="gameOverModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">游戏结束</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="gameResult"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" id="playAgainBtn">再来一局</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="static/js/xiangqi.js"></script>
+</body>
+</html>
